@@ -203,19 +203,23 @@ class NPOPlayer(Site):
 		url = None
 		errors = []
 		for q, stream in enumerate(streams['items'][0][quality:]):
-			stream = self.GetJSON(stream['url'])
-			if stream.get('errorstring'):
-				# Dit is vooral voor regionale afleveringen (lijkt het ...)
-				if meta.get('items') and len(meta['items'][0]) > 0:
-					url = meta['items'][0][0]['url']
-					break
+			if not stream['contentType'] == 'url':
+				stream = self.GetJSON(stream['url'])
+				if stream.get('errorstring'):
+					# Dit is vooral voor regionale afleveringen (lijkt het ...)
+					if meta.get('items') and len(meta['items'][0]) > 0:
+						url = meta['items'][0][0]['url']
+						break
+					else:
+						sys.stderr.write("Warning: De kwaliteit `%s' lijkt niet beschikbaar.\n" % ['hoog', 'middel', 'laag'][q])
+						sys.stderr.flush()
+						errors.append(stream.get('errorstring'))
 				else:
-					sys.stderr.write("Warning: De kwaliteit `%s' lijkt niet beschikbaar.\n" % ['hoog', 'middel', 'laag'][q])
-					sys.stderr.flush()
-					errors.append(stream.get('errorstring'))
+					url = stream['url']
+					break
 			else:
 				url = stream['url']
-				break
+
 
 		if url is None:
 			raise download_npo.DownloadNpoError("Foutmelding van site: `%s'" % ', '.join(errors))
