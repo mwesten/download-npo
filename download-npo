@@ -236,7 +236,7 @@ def Download(videos, filename, outdir, metaonly, metaout, getsubs, quality):
 				print(subout)
 			else:
 				subs_data = site.Subs(playerId).read()
-				if not subs_data == 'No subtitle found':
+				if not subs_data.decode('UTF-8') == 'No subtitle found':
 					with open(subout, 'wb') as fp:
 						fp.write(subs_data)
 		else:
@@ -245,7 +245,7 @@ def Download(videos, filename, outdir, metaonly, metaout, getsubs, quality):
 					print(subout)
 				else:
 					subs_data = site.Subs(playerId).read()
-					if not subs_data == 'No subtitle found':
+					if not subs_data.decode('UTF-8') == 'No subtitle found':
 						with open(subout, 'wb') as fp:
 							fp.write(subs_data)
 			if metaout > 0:
