@@ -202,6 +202,7 @@ def GetDefaults():
 		'replacespace': True,
 		'safefilename': True,
 		'metaonly': 0,
+		'metaout': 0,
 		'getsubs': 0,
 		'quality': 0,
 	}
@@ -211,7 +212,7 @@ def GetDefaults():
 		return defaults
 
 	if _verbose: print('Reading config file from {}'.format(config_path))
-	ints = ['verbose', 'metaonly', 'getsubs', 'quality']
+	ints = ['verbose', 'metaonly', 'metaout', 'getsubs', 'quality']
 	bools = ['silent', 'dryrun', 'overwrite', 'replacespace', 'safefilename']
 
 	for line in open(config_path, 'r'):
@@ -270,6 +271,12 @@ safefilename = True
 # 1: -m
 # 2: -M
 metaonly = 0
+
+# Download ook metadata
+# 1: -u : Download metadata naar YAML bestand
+# 2: -U : Download metadata naar JSON bestand
+metaout = 0
+
 
 # 1: Download ook ondertitels
 # 2: Download alleen ondertitels

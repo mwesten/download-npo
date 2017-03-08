@@ -18,7 +18,7 @@ _options = {}
 
 
 def Help(show_more_help=True):
-	print('%s [-hvdnVsofwcmMtTk] [-o output_dir] [-f output_file] [url url2 ...]' % sys.argv[0])
+	print('%s [-hvdnVsofwcmMuUtTk] [-o output_dir] [-f output_file] [url url2 ...]' % sys.argv[0])
 	print('')
 	print('Video URL kan vanaf de commandline opgegeven worden, of via stdin')
 	print('')
@@ -39,6 +39,8 @@ def Help(show_more_help=True):
 	print('          verwijderen en spaties te vervangen door underscores')
 	print('  -m  Toon enkel de metadata in YAML formaat')
 	print('  -M  Toon enkel de metadata in JSON formaat')
+	print('  -u  Schrijf de metadata ook weg in YAML formaat')
+	print('  -U  Schrijf de metadata ook weg in JSON formaat')	
 	print('  -t  Download ook ondertiteling, als deze bestaat')
 	print('  -T  Download alleen ondertiteling, geef een error als deze niet bestaan')
 	print('  -k  Selecteer de kwaliteit; hoog (default), middel of laag')
@@ -165,7 +167,7 @@ def DownloadVideo(site, playerId, videourl, outfile):
 		print()
 
 
-def Download(videos, filename, outdir, metaonly, getsubs, quality):
+def Download(videos, filename, outdir, metaonly, metaout, getsubs, quality):
 	exitcode = 0
 	for v in videos:
 		if v == '': continue
@@ -187,6 +189,30 @@ def Download(videos, filename, outdir, metaonly, getsubs, quality):
 					site.Meta(playerId), _options['safefilename'],
 					_options['replacespace'], _options['overwrite'])
 				if download_npo.Verbose(): print('Saving subs to %s' % subout)
+			if metaout > 0:
+				if metaout == 1:
+					try:
+						import yaml
+					except ImportError:
+						print('Error: yaml extensie niet gevonden')
+						print('Om de metadata als YAML weg te schrijven is de YAML extensie nodig; deze is te vinden op:')
+						print('http://pyyaml.org/')
+						print('Je kan eventueel ook -U gebruiken om de metadata als JSON weg te schrijven')
+						sys.exit(1)
+					metaext = 'yaml'
+					metafout = download_npo.MakeFilename(outdir, filename, 'yaml',
+						site.Meta(playerId), _options['safefilename'],
+						_options['replacespace'], _options['overwrite'])
+				else:
+					import json					
+					metaext = 'json'
+					metafout = download_npo.MakeFilename(outdir, filename, 'json',
+						site.Meta(playerId), _options['safefilename'],
+						_options['replacespace'], _options['overwrite'])
+
+				if download_npo.Verbose(): print('Saving metadata to %s' % metafout)
+
+
 		except download_npo.DownloadNpoError as exc:
 			Error(exc)
 			exitcode = 1
@@ -218,6 +244,16 @@ def Download(videos, filename, outdir, metaonly, getsubs, quality):
 				else:
 					with open(subout, 'wb') as fp:
 						fp.write(site.Subs(playerId).read())
+			if metaout > 0:
+				if _options['dryrun']:
+					print(metafout)
+				else:
+					if metaout == 1:
+						with open(metafout, 'w') as fp:
+							yaml.dump(site.Meta(playerId), fp, default_flow_style=False)
+					else:
+						with open(metafout, 'w') as fp:
+							json.dump(site.Meta(playerId), fp)
 
 			if not _options['silent']:
 				DownloadVideo(site, playerId, videourl, outfile)
@@ -230,7 +266,7 @@ def Download(videos, filename, outdir, metaonly, getsubs, quality):
 
 if __name__ == '__main__':
 	try:
-		params, videos = getopt.getopt(sys.argv[1:], 'hvVsnwcmMtTo:f:k:d', ['help'])
+		params, videos = getopt.getopt(sys.argv[1:], 'hvVsnwcmMuUtTo:f:k:d', ['help'])
 	except getopt.GetoptError:
 		Error('Error: %s' % sys.exc_info()[1])
 		Help()
@@ -272,6 +308,10 @@ if __name__ == '__main__':
 			options['metaonly'] = 1
 		elif flag == '-M':
 			options['metaonly'] = 2
+		elif flag == '-u':
+			options['metaout'] = 1
+		elif flag == '-U':
+			options['metaout'] = 2			
 		elif flag == '-t':
 			options['getsubs'] = 1
 		elif flag == '-T':
@@ -305,7 +345,7 @@ if __name__ == '__main__':
 
 	try:
 		Download(videos, options['filename'], options['outdir'],
-			options['metaonly'], options['getsubs'], options['quality'])
+			options['metaonly'], options['metaout'], options['getsubs'], options['quality'])
 	except KeyboardInterrupt:
 		print('')
 
