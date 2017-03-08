@@ -187,7 +187,6 @@ class NPOPlayer(Site):
 		if meta.get('error') and len(meta['error']) > 1:
 			raise download_npo.DownloadNpoError(
 				'Site geeft aan dat er iets fout is: {}'.format(meta['error']))
-
 		ext = 'mp4'
 		if meta.get('items') and type(meta['items'][0][0]) == dict:
 			# Radiouitendingen
@@ -203,7 +202,7 @@ class NPOPlayer(Site):
 		url = None
 		errors = []
 		for q, stream in enumerate(streams['items'][0][quality:]):
-			if not stream['contentType'] == 'url':
+			if not stream['contentType'] == 'url' and not stream['contentType'] == 'audio':
 				stream = self.GetJSON(stream['url'])
 				if stream.get('errorstring'):
 					# Dit is vooral voor regionale afleveringen (lijkt het ...)
@@ -218,6 +217,8 @@ class NPOPlayer(Site):
 					url = stream['url']
 					break
 			else:
+				if stream['contentType'] == 'audio':
+					ext = stream['format']
 				url = stream['url']
 
 
