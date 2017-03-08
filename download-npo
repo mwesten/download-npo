@@ -189,7 +189,7 @@ def Download(videos, filename, outdir, metaonly, metaout, getsubs, quality):
 					site.Meta(playerId), _options['safefilename'],
 					_options['replacespace'], _options['overwrite'])
 				if download_npo.Verbose(): print('Saving subs to %s' % subout)
-			if metaout > 0:
+			if metaout > 0 and not metaonly:
 				if metaout == 1:
 					try:
 						import yaml
