@@ -235,15 +235,19 @@ def Download(videos, filename, outdir, metaonly, metaout, getsubs, quality):
 			if _options['dryrun']:
 				print(subout)
 			else:
-				with open(subout, 'wb') as fp:
-					fp.write(site.Subs(playerId).read())
+				subs_data = site.Subs(playerId).read()
+				if not subs_data == 'No subtitle found':
+					with open(subout, 'wb') as fp:
+						fp.write(subs_data)
 		else:
 			if getsubs == 1:
 				if _options['dryrun']:
 					print(subout)
 				else:
-					with open(subout, 'wb') as fp:
-						fp.write(site.Subs(playerId).read())
+					subs_data = site.Subs(playerId).read()
+					if not subs_data == 'No subtitle found':
+						with open(subout, 'wb') as fp:
+							fp.write(subs_data)
 			if metaout > 0:
 				if _options['dryrun']:
 					print(metafout)
