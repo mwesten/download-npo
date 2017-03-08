@@ -182,7 +182,7 @@ def Download(videos, filename, outdir, metaonly, getsubs, quality):
 					_options['replacespace'], _options['overwrite'])
 				if download_npo.Verbose(): print('Saving to %s' % outfile)
 
-			if getsubs > 0:
+			if getsubs > 0 and not metaonly:
 				subout = download_npo.MakeFilename(outdir, filename, 'srt',
 					site.Meta(playerId), _options['safefilename'],
 					_options['replacespace'], _options['overwrite'])
